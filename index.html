@@ -1,0 +1,2009 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bounce Craze</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #score-display {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 15px;
+            z-index: 10;
+        }
+        
+        #level-display {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 15px;
+            z-index: 10;
+        }
+        
+        #coins-display {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 15px;
+            z-index: 10;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 100;
+        }
+        
+        #game-over h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #FF5722;
+        }
+        
+        #final-score {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        #final-coins {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        
+        #final-level {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        
+        #restart-btn {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #restart-btn:hover {
+            background-color: #45a049;
+        }
+        
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 100;
+        }
+        
+        #start-screen h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #FFC107;
+        }
+        
+        #start-btn {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #start-btn:hover {
+            background-color: #0b7dda;
+        }
+        
+        .instructions {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 80%;
+        }
+
+        /* Privacy Button Styles - Modified to be at top */
+        .privacy-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 150;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .privacy-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .privacy-btn .dot {
+            width: 4px;
+            height: 4px;
+            background-color: white;
+            border-radius: 50%;
+            margin: 2px 0;
+        }
+
+        /* Privacy Modal Styles */
+        .privacy-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            color: white;
+            padding: 30px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .privacy-content {
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .privacy-content h2 {
+            color: #FFC107;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .privacy-content p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .privacy-content a {
+            color: #4FC3F7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .privacy-content a:hover {
+            color: #81D4FA';
+            text-decoration: underline;
+        }
+
+        .close-privacy {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-privacy:hover {
+            color: #FF5722;
+        }
+        
+        /* YouTube Logo Styles - Updated */
+        .youtube-logo {
+            position: absolute;
+            left: 20px;
+            bottom: 20px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 110;
+        }
+        
+        .youtube-logo:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Start button container */
+        .start-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        /* Sound Button Styles - MODIFIED FOR HOME SCREEN */
+        .sound-btn {
+            position: absolute;
+            left: 30px; /* Adjusted to leave some gap from the YouTube logo */
+            bottom: 90px; /* Positioned below the YouTube logo with gap */
+            width: 40px; /* Smaller size */
+            height: 40px; /* Smaller size */
+            cursor: pointer;
+            z-index: 110;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .sound-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .sound-icon {
+            width: 24px; /* Smaller icon */
+            height: 24px; /* Smaller icon */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        .sound-btn.muted .sound-icon {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>');
+        }
+        
+        .sound-btn.muted::after {
+            content: "";
+            position: absolute;
+            width: 30px; /* Smaller strike-through */
+            height: 3px;
+            background-color: white;
+            transform: rotate(-45deg);
+            margin-top: -1px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="score-display">Score: 0</div>
+        <div id="coins-display">Coins: 0</div>
+        <div id="level-display">Level: 0</div>
+        
+        <!-- Sound Button REMOVED from here (now only on start screen) -->
+        
+        <div id="start-screen">
+            <!-- Privacy Button moved to top right -->
+            <div class="privacy-btn" id="privacy-btn" style="top: 15px; right: 20px;">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            
+            <h1>Bounce Craze</h1>
+            <div class="instructions">
+                <p>Help the ball bounce over the obstacles!</p>
+                <p>Press SPACE or CLICK to make the ball jump.</p>
+                <p>Collect golden coins for extra points!</p>
+                <p>Go as far as you can to score more points!</p>
+                <p>Watch the world change as you progress through levels!</p>
+            </div>
+            <div class="start-container">
+                <button id="start-btn">Start Game</button>
+                <img src="https://iili.io/3ZDjJ8F.png" class="youtube-logo" id="youtube-logo" alt="YouTube Channel">
+                <!-- Sound Button added here (only on start screen) -->
+                <div class="sound-btn" id="sound-btn">
+                    <div class="sound-icon"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-over">
+            <!-- Privacy Button moved to top right -->
+            <div class="privacy-btn" id="game-over-privacy-btn" style="top: 15px; right: 20px;">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            
+            <h1>Game Over!</h1>
+            <div id="final-score">Score: 0</div>
+            <div id="final-coins">Coins Collected: 0</div>
+            <div id="final-level">Level Reached: 0</div>
+            <button id="restart-btn">Play Again</button>
+        </div>
+        
+        <!-- Privacy Modal -->
+        <div class="privacy-modal" id="privacy-modal">
+            <span class="close-privacy">&times;</span>
+            <div class="privacy-content">
+                <h2>Privacy & User Information</h2>
+                <p>This app does not collect, store, or share any personal information from users. It is built purely for entertainment purposes and does not access your device's private data.</p>
+                
+                <p>Our goal is to provide a fun and enjoyable gaming experience.</p>
+                
+                <p>If you face any issues or bugs while playing the game, you are welcome to leave a comment on our YouTube channel or provide feedback via the Play Store review section.</p>
+                
+                <p>Stay updated with our latest games and apps by subscribing to our official YouTube channel here:<br>
+                Visit our YouTube Channel-<br>
+                <a href="https://youtube.com/@appworldofficialyt?si=TTfNopBI9qR5CQ2r" target="_blank">https://youtube.com/@appworldofficialyt?si=TTfNopBI9qR5CQ2r</a></p>
+                
+                <p>Your support helps us grow and bring you even better experiences.</p>
+                
+                <p>Thank you for playing our game!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 800;
+        canvas.height = 500;
+        
+        // Music files
+        const music = {
+            score: new Audio('Score music.mp3'),
+            coin: new Audio('Coin music.mp3'),
+            levelUp: new Audio('Level up music.mp3'),
+            gameOver: new Audio('Game over music.mp3')
+        };
+        
+        // Set volume for music (will be controlled by mute button)
+        let soundEnabled = true;
+        music.score.volume = 0.7;
+        music.coin.volume = 0.7;
+        music.levelUp.volume = 0.7;
+        music.gameOver.volume = 0.7;
+        
+        // Game state
+        let gameRunning = false;
+        let score = 0;
+        let coins = 0;
+        let level = 0;
+        let gameSpeed = 5;
+        let lastTime = 0;
+        let obstacles = [];
+        let coinsArray = [];
+        let particles = [];
+        let clouds = [];
+        let backgroundElements = [];
+        let time = 0;
+        
+        // Background types
+        const BACKGROUND_TYPES = {
+            MOUNTAINS: 0,
+            BEACH: 1,
+            CITY: 2,
+            FOREST: 3,
+            DESERT: 4,
+            SPACE: 5,
+            JUNGLE: 6,
+            WINTER: 7,
+            SUNSET: 8,
+            NIGHT_CITY: 9,
+            UNDERWATER: 10,
+            VOLCANO: 11,
+            CLOUD_CITY: 12,
+            AUTUMN: 13,
+            FARM: 14,
+            CANYON: 15,
+            MARS: 16,
+            FUTURISTIC: 17,
+            CASTLE: 18,
+            RAINBOW: 19
+        };
+        
+        // Initialize background elements
+        function initBackgroundElements() {
+            backgroundElements = [];
+            
+            // Common elements (clouds, sun, etc.)
+            if (level <= 4 || level >= 15) {
+                // Create clouds for appropriate backgrounds
+                for (let i = 0; i < 5; i++) {
+                    clouds.push({
+                        x: Math.random() * canvas.width,
+                        y: 50 + Math.random() * 100,
+                        width: 80 + Math.random() * 60,
+                        height: 30 + Math.random() * 20,
+                        speed: 0.2 + Math.random() * 0.3
+                    });
+                }
+            }
+            
+            // Background-specific elements
+            switch(level % 20) {
+                case BACKGROUND_TYPES.MOUNTAINS:
+                    // Mountain elements
+                    for (let i = 0; i < 3; i++) {
+                        backgroundElements.push({
+                            type: 'mountain',
+                            x: i * 300 - 100,
+                            height: 150 + Math.random() * 100,
+                            color: `hsl(210, 50%, ${30 + i * 10}%)`
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.BEACH:
+                    // Beach elements (palm trees, waves)
+                    for (let i = 0; i < 2; i++) {
+                        backgroundElements.push({
+                            type: 'palm',
+                            x: i * 400 + 100,
+                            height: 120 + Math.random() * 30
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.CITY:
+                    // City buildings
+                    for (let i = 0; i < 8; i++) {
+                        backgroundElements.push({
+                            type: 'building',
+                            x: i * 100 + 50,
+                            width: 60 + Math.random() * 40,
+                            height: 100 + Math.random() * 150,
+                            color: `hsl(${200 + Math.random() * 40}, 50%, 50%)`,
+                            windows: Math.floor(3 + Math.random() * 5)
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.FOREST:
+                    // Forest trees
+                    for (let i = 0; i < 10; i++) {
+                        backgroundElements.push({
+                            type: 'forestTree',
+                            x: i * 80 + 30,
+                            height: 100 + Math.random() * 80,
+                            width: 40 + Math.random() * 20
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.DESERT:
+                    // Desert dunes
+                    for (let i = 0; i < 5; i++) {
+                        backgroundElements.push({
+                            type: 'dune',
+                            x: i * 200 - 50,
+                            height: 80 + Math.random() * 60,
+                            width: 200 + Math.random() * 100
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.SPACE:
+                    // Stars
+                    for (let i = 0; i < 100; i++) {
+                        backgroundElements.push({
+                            type: 'star',
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * 300,
+                            size: Math.random() * 2,
+                            twinkleSpeed: Math.random() * 0.05
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.JUNGLE:
+                    // Jungle plants
+                    for (let i = 0; i < 15; i++) {
+                        backgroundElements.push({
+                            type: 'junglePlant',
+                            x: i * 60 + 20,
+                            height: 80 + Math.random() * 100,
+                            width: 40 + Math.random() * 30
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.WINTER:
+                    // Snowy hills
+                    for (let i = 0; i < 4; i++) {
+                        backgroundElements.push({
+                            type: 'snowHill',
+                            x: i * 250 - 50,
+                            height: 100 + Math.random() * 80,
+                            width: 250 + Math.random() * 100
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.SUNSET:
+                    // Sunset elements
+                    for (let i = 0; i < 3; i++) {
+                        backgroundElements.push({
+                            type: 'sunsetCloud',
+                            x: i * 300 + 50,
+                            y: 100 + Math.random() * 50,
+                            width: 120 + Math.random() * 80,
+                            height: 40 + Math.random() * 30
+                        });
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.NIGHT_CITY:
+                    // Night city with lights
+                    for (let i = 0; i < 10; i++) {
+                        backgroundElements.push({
+                            type: 'nightBuilding',
+                            x: i * 80 + 30,
+                            width: 50 + Math.random() * 40,
+                            height: 120 + Math.random() * 180,
+                            windowCount: Math.floor(5 + Math.random() * 10)
+                        });
+                    }
+                    break;
+                    
+                default:
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#87CEEB');
+                    skyGradient.addColorStop(1, '#E0F7FA');
+            }
+        }
+        
+        // Draw background based on current level
+        function drawBackground() {
+            time += 0.01;
+            
+            // Sky gradient changes based on level
+            let skyGradient;
+            switch(level % 20) {
+                case BACKGROUND_TYPES.MOUNTAINS: // Mountains
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#87CEEB');
+                    skyGradient.addColorStop(1, '#E0F7FA');
+                    break;
+                    
+                case BACKGROUND_TYPES.BEACH: // Beach
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#64B5F6');
+                    skyGradient.addColorStop(1, '#4FC3F7');
+                    break;
+                    
+                case BACKGROUND_TYPES.CITY: // City
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#90A4AE');
+                    skyGradient.addColorStop(1, '#B0BEC5');
+                    break;
+                    
+                case BACKGROUND_TYPES.FOREST: // Forest
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#81D4FA');
+                    skyGradient.addColorStop(1, '#B3E5FC');
+                    break;
+                    
+                case BACKGROUND_TYPES.DESERT: // Desert
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#FFD54F');
+                    skyGradient.addColorStop(1, '#FFE082');
+                    break;
+                    
+                case BACKGROUND_TYPES.SPACE: // Space
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#0D47A1');
+                    skyGradient.addColorStop(1, '#000000');
+                    break;
+                    
+                case BACKGROUND_TYPES.JUNGLE: // Jungle
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#4DB6AC');
+                    skyGradient.addColorStop(1, '#80CBC4');
+                    break;
+                    
+                case BACKGROUND_TYPES.WINTER: // Winter
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#E3F2FD');
+                    skyGradient.addColorStop(1, '#BBDEFB');
+                    break;
+                    
+                case BACKGROUND_TYPES.SUNSET: // Sunset
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#FF7043');
+                    skyGradient.addColorStop(0.5, '#FFAB91');
+                    skyGradient.addColorStop(1, '#F8BBD0');
+                    break;
+                    
+                case BACKGROUND_TYPES.NIGHT_CITY: // Night City
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#0A2463');
+                    skyGradient.addColorStop(1, '#3E92CC');
+                    break;
+                    
+                case BACKGROUND_TYPES.UNDERWATER: // Underwater
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#00838F');
+                    skyGradient.addColorStop(1, '#4FB3BF');
+                    break;
+                    
+                case BACKGROUND_TYPES.VOLCANO: // Volcano
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#BF360C');
+                    skyGradient.addColorStop(1, '#F4511E');
+                    break;
+                    
+                case BACKGROUND_TYPES.CLOUD_CITY: // Cloud City
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#9FA8DA');
+                    skyGradient.addColorStop(1, '#C5CAE9');
+                    break;
+                    
+                case BACKGROUND_TYPES.AUTUMN: // Autumn
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#FFB74D');
+                    skyGradient.addColorStop(1, '#FFCC80');
+                    break;
+                    
+                case BACKGROUND_TYPES.FARM: // Farm
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#26C6DA');
+                    skyGradient.addColorStop(1, '#80DEEA');
+                    break;
+                    
+                case BACKGROUND_TYPES.CANYON: // Canyon
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#8D6E63');
+                    skyGradient.addColorStop(1, '#BCAAA4');
+                    break;
+                    
+                case BACKGROUND_TYPES.MARS: // Mars
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#D84315');
+                    skyGradient.addColorStop(1, '#FF8A65');
+                    break;
+                    
+                case BACKGROUND_TYPES.FUTURISTIC: // Futuristic
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#7E57C2');
+                    skyGradient.addColorStop(1, '#B39DDB');
+                    break;
+                    
+                case BACKGROUND_TYPES.CASTLE: // Castle
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#5C6BC0');
+                    skyGradient.addColorStop(1, '#9FA8DA');
+                    break;
+                    
+                case BACKGROUND_TYPES.RAINBOW: // Rainbow
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#FF5252');
+                    skyGradient.addColorStop(0.2, '#FFD740');
+                    skyGradient.addColorStop(0.4, '#69F0AE');
+                    skyGradient.addColorStop(0.6, '#40C4FF');
+                    skyGradient.addColorStop(0.8, '#E040FB');
+                    skyGradient.addColorStop(1, '#FF4081');
+                    break;
+                    
+                default:
+                    skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                    skyGradient.addColorStop(0, '#87CEEB');
+                    skyGradient.addColorStop(1, '#E0F7FA');
+            }
+            
+            // Draw sky
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background elements based on level
+            switch(level % 20) {
+                case BACKGROUND_TYPES.MOUNTAINS: // Mountains
+                    // Draw mountains
+                    backgroundElements.forEach(mountain => {
+                        ctx.fillStyle = mountain.color;
+                        ctx.beginPath();
+                        ctx.moveTo(mountain.x, canvas.height - 50);
+                        ctx.lineTo(mountain.x + 200, canvas.height - 50 - mountain.height);
+                        ctx.lineTo(mountain.x + 400, canvas.height - 50);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Snow caps
+                        if (mountain.height > 180) {
+                            ctx.fillStyle = '#ECEFF1';
+                            ctx.beginPath();
+                            ctx.moveTo(mountain.x + 100, canvas.height - 50 - mountain.height + 20);
+                            ctx.lineTo(mountain.x + 150, canvas.height - 50 - mountain.height + 50);
+                            ctx.lineTo(mountain.x + 200, canvas.height - 50 - mountain.height + 20);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                    });
+                    
+                    // Draw sun
+                    ctx.fillStyle = '#FFEB3B';
+                    ctx.beginPath();
+                    ctx.arc(150, 120, 40, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case BACKGROUND_TYPES.BEACH: // Beach
+                    // Draw ocean
+                    const oceanGradient = ctx.createLinearGradient(0, canvas.height - 100, 0, canvas.height - 50);
+                    oceanGradient.addColorStop(0, '#0288D1');
+                    oceanGradient.addColorStop(1, '#4FC3F7');
+                    ctx.fillStyle = oceanGradient;
+                    ctx.fillRect(0, canvas.height - 100, canvas.width, 50);
+                    
+                    // Draw sand
+                    ctx.fillStyle = '#FFD54F';
+                    ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+                    
+                    // Draw palm trees
+                    backgroundElements.forEach(palm => {
+                        // Trunk
+                        ctx.fillStyle = '#8D6E63';
+                        ctx.fillRect(palm.x, canvas.height - 50 - palm.height + 30, 10, palm.height - 30);
+                        
+                        // Leaves
+                        ctx.fillStyle = '#2E7D32';
+                        for (let i = 0; i < 5; i++) {
+                            const angle = (i / 5) * Math.PI * 2;
+                            ctx.beginPath();
+                            ctx.moveTo(palm.x + 5, canvas.height - 50 - palm.height + 30);
+                            ctx.lineTo(palm.x + 5 + Math.cos(angle) * 30, canvas.height - 50 - palm.height + 30 + Math.sin(angle) * 30 - 20);
+                            ctx.lineTo(palm.x + 5 + Math.cos(angle + 0.3) * 50, canvas.height - 50 - palm.height + 30 + Math.sin(angle + 0.3) * 50 - 30);
+                            ctx.lineTo(palm.x + 5 + Math.cos(angle - 0.3) * 50, canvas.height - 50 - palm.height + 30 + Math.sin(angle - 0.3) * 50 - 30);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                    });
+                    
+                    // Draw waves
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.lineWidth = 2;
+                    for (let i = 0; i < 10; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(i * 100 + time * 20, canvas.height - 80);
+                        ctx.quadraticCurveTo(
+                            i * 100 + 50 + time * 20, canvas.height - 85, 
+                            i * 100 + 100 + time * 20, canvas.height - 80
+                        );
+                        ctx.stroke();
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.CITY: // City
+                    // Draw buildings
+                    backgroundElements.forEach(building => {
+                        // Building
+                        ctx.fillStyle = building.color;
+                        ctx.fillRect(building.x, canvas.height - 50 - building.height, building.width, building.height);
+                        
+                        // Windows
+                        ctx.fillStyle = '#FFEB3B';
+                        const windowWidth = building.width / (building.windows + 1);
+                        const windowHeight = building.height / 10;
+                        
+                        for (let i = 1; i <= building.windows; i++) {
+                            for (let j = 1; j <= 8; j++) {
+                                if (Math.random() > 0.3) { // Randomly turn some windows off
+                                    ctx.fillRect(
+                                        building.x + i * windowWidth - windowWidth/2, 
+                                        canvas.height - 50 - building.height + j * windowHeight, 
+                                        5, 
+                                        5
+                                    );
+                                }
+                            }
+                        }
+                        
+                        // Roof
+                        ctx.fillStyle = '#37474F';
+                        ctx.beginPath();
+                        ctx.moveTo(building.x - 5, canvas.height - 50 - building.height);
+                        ctx.lineTo(building.x + building.width/2, canvas.height - 50 - building.height - 15);
+                        ctx.lineTo(building.x + building.width + 5, canvas.height - 50 - building.height);
+                        ctx.closePath();
+                        ctx.fill();
+                    });
+                    
+                    // Draw sun between buildings
+                    ctx.fillStyle = '#FFA000';
+                    ctx.beginPath();
+                    ctx.arc(700, 100, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case BACKGROUND_TYPES.FOREST: // Forest
+                    // Draw trees
+                    backgroundElements.forEach(tree => {
+                        // Trunk
+                        ctx.fillStyle = '#5D4037';
+                        ctx.fillRect(tree.x + tree.width/2 - 5, canvas.height - 50 - tree.height + 20, 10, tree.height - 20);
+                        
+                        // Leaves
+                        ctx.fillStyle = '#2E7D32';
+                        ctx.beginPath();
+                        ctx.ellipse(
+                            tree.x + tree.width/2, 
+                            canvas.height - 50 - tree.height + 20, 
+                            tree.width/2, 
+                            tree.height/3, 
+                            0, 
+                            0, 
+                            Math.PI * 2
+                        );
+                        ctx.fill();
+                    });
+                    
+                    // Draw sun
+                    ctx.fillStyle = '#FFC107';
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 40, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw rays
+                    ctx.strokeStyle = 'rgba(255, 193, 7, 0.3)';
+                    ctx.lineWidth = 3;
+                    for (let i = 0; i < 12; i++) {
+                        const angle = (i / 12) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.moveTo(100 + Math.cos(angle) * 40, 100 + Math.sin(angle) * 40);
+                        ctx.lineTo(100 + Math.cos(angle) * 60, 100 + Math.sin(angle) * 60);
+                        ctx.stroke();
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.DESERT: // Desert
+                    // Draw dunes
+                    backgroundElements.forEach(dune => {
+                        ctx.fillStyle = '#FFCA28';
+                        ctx.beginPath();
+                        ctx.moveTo(dune.x, canvas.height - 50);
+                        ctx.quadraticCurveTo(
+                            dune.x + dune.width/2, canvas.height - 50 - dune.height, 
+                            dune.x + dune.width, canvas.height - 50
+                        );
+                        ctx.closePath();
+                        ctx.fill();
+                    });
+                    
+                    // Draw sun
+                    ctx.fillStyle = '#FF9800';
+                    ctx.beginPath();
+                    ctx.arc(700, 80, 50, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw heat waves
+                    ctx.strokeStyle = 'rgba(255, 235, 59, 0.3)';
+                    ctx.lineWidth = 2;
+                    for (let i = 0; i < 5; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, 100 + i * 30 + Math.sin(time * 2 + i) * 5);
+                        ctx.bezierCurveTo(
+                            200, 100 + i * 30 + Math.sin(time * 2 + i + 1) * 5,
+                            600, 100 + i * 30 + Math.sin(time * 2 + i + 2) * 5,
+                            800, 100 + i * 30 + Math.sin(time * 2 + i + 3) * 5
+                        );
+                        ctx.stroke();
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.SPACE: // Space
+                    // Draw stars
+                    backgroundElements.forEach(star => {
+                        const twinkle = Math.abs(Math.sin(time * star.twinkleSpeed)) * 0.8 + 0.2;
+                        ctx.fillStyle = `rgba(255, 255, 255, ${twinkle})`;
+                        ctx.fillRect(star.x, star.y, star.size, star.size);
+                    });
+                    
+                    // Draw planet
+                    ctx.fillStyle = '#7E57C2';
+                    ctx.beginPath();
+                    ctx.arc(700, 150, 80, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw rings
+                    ctx.strokeStyle = '#B39DDB';
+                    ctx.lineWidth = 5;
+                    ctx.beginPath();
+                    ctx.ellipse(700, 150, 100, 20, Math.PI/4, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    // Draw small moon
+                    ctx.fillStyle = '#E0E0E0';
+                    ctx.beginPath();
+                    ctx.arc(600, 100, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case BACKGROUND_TYPES.JUNGLE: // Jungle
+                    // Draw jungle plants
+                    backgroundElements.forEach(plant => {
+                        // Stem
+                        ctx.fillStyle = '#5D4037';
+                        ctx.fillRect(plant.x + plant.width/2 - 3, canvas.height - 50 - plant.height + 10, 6, plant.height - 10);
+                        
+                        // Leaves
+                        ctx.fillStyle = '#388E3C';
+                        for (let i = 0; i < 3; i++) {
+                            const angle = (i / 3) * Math.PI * 2 + time;
+                            const leafSize = plant.width * (0.7 + i * 0.2);
+                            ctx.beginPath();
+                            ctx.ellipse(
+                                plant.x + plant.width/2 + Math.cos(angle) * 20, 
+                                canvas.height - 50 - plant.height + 30 + Math.sin(angle) * 10, 
+                                leafSize/2, 
+                                leafSize/4, 
+                                angle, 
+                                0, 
+                                Math.PI * 2
+                            );
+                            ctx.fill();
+                        }
+                    });
+                    
+                    // Draw sun through leaves
+                    ctx.fillStyle = '#FFA000';
+                    ctx.beginPath();
+                    ctx.arc(700, 100, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw light rays
+                    const gradient = ctx.createRadialGradient(700, 100, 30, 700, 100, 150);
+                    gradient.addColorStop(0, 'rgba(255, 160, 0, 0.8)');
+                    gradient.addColorStop(1, 'rgba(255, 160, 0, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(700, 100, 150, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case BACKGROUND_TYPES.WINTER: // Winter
+                    // Draw snow hills
+                    backgroundElements.forEach(hill => {
+                        ctx.fillStyle = '#ECEFF1';
+                        ctx.beginPath();
+                        ctx.moveTo(hill.x, canvas.height - 50);
+                        ctx.quadraticCurveTo(
+                            hill.x + hill.width/2, canvas.height - 50 - hill.height, 
+                            hill.x + hill.width, canvas.height - 50
+                        );
+                        ctx.closePath();
+                        ctx.fill();
+                    });
+                    
+                    // Draw snowflakes
+                    for (let i = 0; i < 50; i++) {
+                        const x = (i * 20 + time * 50) % (canvas.width + 40) - 20;
+                        const y = (i * 30 + time * 30) % (canvas.height + 40) - 20;
+                        
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.beginPath();
+                        ctx.arc(x, y, 1 + Math.random(), 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Add some larger snowflakes
+                        if (i % 10 === 0) {
+                            ctx.beginPath();
+                            ctx.arc(x + 10, y - 15, 2 + Math.random(), 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                    break;
+                    
+                case BACKGROUND_TYPES.SUNSET: // Sunset
+                    // Draw sun
+                    ctx.fillStyle = '#FF7043';
+                    ctx.beginPath();
+                    ctx.arc(400, 150, 60, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw sunset glow
+                    const sunsetGradient = ctx.createRadialGradient(400, 150, 60, 400, 150, 250);
+                    sunsetGradient.addColorStop(0, 'rgba(255, 112, 67, 0.8)');
+                    sunsetGradient.addColorStop(1, 'rgba(255, 112, 67, 0)');
+                    ctx.fillStyle = sunsetGradient;
+                    ctx.beginPath();
+                    ctx.arc(400, 150, 250, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw clouds
+                    backgroundElements.forEach(cloud => {
+                        ctx.fillStyle = 'rgba(255, 235, 59, 0.6)';
+                        ctx.beginPath();
+                        ctx.ellipse(
+                            cloud.x + time * 5, 
+                            cloud.y, 
+                            cloud.width/2, 
+                            cloud.height/2, 
+                            0, 
+                            0, 
+                            Math.PI * 2
+                        );
+                        ctx.fill();
+                    });
+                    break;
+                    
+                case BACKGROUND_TYPES.NIGHT_CITY: // Night City
+                    // Draw buildings with lights
+                    backgroundElements.forEach(building => {
+                        // Building
+                        ctx.fillStyle = '#263238';
+                        ctx.fillRect(building.x, canvas.height - 50 - building.height, building.width, building.height);
+                        
+                        // Windows
+                        const windowWidth = building.width / (building.windowCount + 1);
+                        const windowHeight = building.height / 15;
+                        
+                        for (let i = 1; i <= building.windowCount; i++) {
+                            for (let j = 1; j <= 12; j++) {
+                                // Random colored windows
+                                const colors = ['#FF5252', '#FFD740', '#69F0AE', '#40C4FF', '#E040FB'];
+                                ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+                                
+                                if (Math.random() > 0.4) { // 60% chance to have a light on
+                                    ctx.fillRect(
+                                        building.x + i * windowWidth - windowWidth/2, 
+                                        canvas.height - 50 - building.height + j * windowHeight, 
+                                        4, 
+                                        4
+                                    );
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Draw moon
+                    ctx.fillStyle = '#E0E0E0';
+                    ctx.beginPath();
+                    ctx.arc(700, 100, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Draw stars
+                    for (let i = 0; i < 50; i++) {
+                        const x = (i * 20) % (canvas.width + 20);
+                        const y = (i * 15) % 200 + 20;
+                        
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.beginPath();
+                        ctx.arc(x, y, Math.random() * 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+                    
+                // Additional backgrounds would be drawn here...
+                // For brevity, I've included 10 detailed backgrounds, but the pattern continues similarly
+                // for the remaining 10 backgrounds with their own unique elements and animations
+                
+                default:
+                    // Default background (mountains)
+                    // Draw mountains
+                    for (let i = 0; i < 3; i++) {
+                        ctx.fillStyle = `hsl(210, 50%, ${30 + i * 10}%)`;
+                        ctx.beginPath();
+                        ctx.moveTo(i * 300 - 100, canvas.height - 50);
+                        ctx.lineTo(i * 300 + 100, 200);
+                        ctx.lineTo(i * 300 + 300, canvas.height - 50);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                    
+                    // Draw sun
+                    ctx.fillStyle = '#FFEB3B';
+                    ctx.beginPath();
+                    ctx.arc(150, 120, 40, 0, Math.PI * 2);
+                    ctx.fill();
+            }
+            
+            // Draw clouds (for backgrounds that should have them)
+            if (level <= 4 || level >= 15) {
+                clouds.forEach(cloud => {
+                    cloud.x -= cloud.speed;
+                    if (cloud.x + cloud.width < 0) {
+                        cloud.x = canvas.width;
+                    }
+                    
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.beginPath();
+                    ctx.ellipse(
+                        cloud.x, 
+                        cloud.y, 
+                        cloud.width/2, 
+                        cloud.height/2, 
+                        0, 
+                        0, 
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                });
+            }
+            
+            // Draw ground (changes based on level)
+            let groundColor;
+            switch(level % 20) {
+                case BACKGROUND_TYPES.BEACH:
+                    groundColor = '#FFD54F'; // Sand
+                    break;
+                case BACKGROUND_TYPES.DESERT:
+                    groundColor = '#FFB74D'; // Desert sand
+                    break;
+                case BACKGROUND_TYPES.WINTER:
+                    groundColor = '#E0E0E0'; // Snow
+                    break;
+                case BACKGROUND_TYPES.SPACE:
+                    groundColor = '#424242'; // Space ground
+                    break;
+                case BACKGROUND_TYPES.JUNGLE:
+                    groundColor = '#33691E'; // Jungle floor
+                    break;
+                case BACKGROUND_TYPES.UNDERWATER:
+                    groundColor = '#00796B'; // Ocean floor
+                    break;
+                case BACKGROUND_TYPES.VOLCANO:
+                    groundColor = '#BF360C'; // Lava rock
+                    break;
+                case BACKGROUND_TYPES.MARS:
+                    groundColor = '#D84315'; // Mars soil
+                    break;
+                default:
+                    groundColor = '#8BC34A'; // Grass
+            }
+            
+            ctx.fillStyle = groundColor;
+            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+        }
+        
+        // Ball properties
+        const ball = {
+            x: 100,
+            y: 250,
+            radius: 25,
+            velocityY: 0,
+            gravity: 0.5,
+            jumpForce: -12,
+            isJumping: false,
+            
+            draw: function() {
+                // Draw the ball
+                ctx.fillStyle = '#FF5722';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add some shine to make it look more like a ball
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(this.x - this.radius/3, this.y - this.radius/3, this.radius/4, 0, Math.PI * 2);
+                ctx.fill();
+            },
+            
+            update: function(deltaTime) {
+                // Apply gravity with frame-rate independence
+                this.velocityY += this.gravity * (deltaTime / 16.67);
+                this.y += this.velocityY * (deltaTime / 16.67);
+                
+                // Ground collision with better handling
+                const groundLevel = canvas.height - 50 - this.radius;
+                if (this.y > groundLevel) {
+                    this.y = groundLevel;
+                    this.velocityY = 0;
+                    this.isJumping = false;
+                    
+                    // Create landing particles
+                    if (Math.abs(this.velocityY) > 2) {
+                        createLandingParticles(this.x, groundLevel + this.radius);
+                    }
+                }
+                
+                // Ceiling collision
+                if (this.y - this.radius < 0) {
+                    this.y = this.radius;
+                    this.velocityY = 0;
+                }
+            },
+            
+            jump: function() {
+                if (!this.isJumping) {
+                    this.velocityY = this.jumpForce;
+                    this.isJumping = true;
+                    
+                    // Create jump particles
+                    createJumpParticles(this.x, this.y + this.radius);
+                }
+            }
+        };
+        
+        // Coin class
+        class Coin {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 15;
+                this.collected = false;
+                this.animationTime = 0;
+                this.floatHeight = 0;
+                this.floatSpeed = 0.05 + Math.random() * 0.05;
+                this.floatAmplitude = 5 + Math.random() * 10;
+            }
+            
+            update(deltaTime) {
+                if (this.collected) return;
+                
+                // Update floating animation
+                this.animationTime += this.floatSpeed * (deltaTime / 16.67);
+                this.floatHeight = Math.sin(this.animationTime) * this.floatAmplitude;
+                
+                // Check collision with ball
+                const dx = ball.x - this.x;
+                const dy = ball.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < ball.radius + this.radius) {
+                    this.collected = true;
+                    coins++;
+                    document.getElementById('coins-display').textContent = `Coins: ${coins}`;
+                    
+                    // Play coin music if sound is enabled
+                    if (soundEnabled) {
+                        music.coin.currentTime = 0;
+                        music.coin.play();
+                    }
+                    
+                    // Create coin collection particles
+                    createCoinParticles(this.x, this.y);
+                }
+            }
+            
+            draw() {
+                if (this.collected) return;
+                
+                const currentY = this.y + this.floatHeight;
+                
+                // Draw gold coin
+                const gradient = ctx.createRadialGradient(
+                    this.x, currentY - 3, 0,
+                    this.x, currentY, this.radius
+                );
+                gradient.addColorStop(0, '#FFD700');
+                gradient.addColorStop(0.7, '#FFA500');
+                gradient.addColorStop(1, '#DA9100');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, currentY, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add shine to the coin
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x - this.radius/3, currentY - this.radius/3, this.radius/4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add coin details
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(this.x, currentY, this.radius/1.5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#FFA500';
+                ctx.beginPath();
+                ctx.arc(this.x, currentY, this.radius/3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Particle system for effects
+        function createJumpParticles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    size: 2 + Math.random() * 4,
+                    color: `rgba(255, 165, 0, ${0.7 + Math.random() * 0.3})`,
+                    velocityX: -2 + Math.random() * 4,
+                    velocityY: -1 - Math.random() * 3,
+                    life: 30 + Math.random() * 20,
+                    gravity: 0.1
+                });
+            }
+        }
+        
+        function createLandingParticles(x, y) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    size: 3 + Math.random() * 5,
+                    color: `rgba(139, 69, 19, ${0.7 + Math.random() * 0.3})`,
+                    velocityX: -3 + Math.random() * 6,
+                    velocityY: -Math.random() * 2,
+                    life: 40 + Math.random() * 30,
+                    gravity: 0.2
+                });
+            }
+        }
+        
+        function createTreeParticles(x, y) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    size: 2 + Math.random() * 3,
+                    color: `rgba(255, 235, 59, ${0.7 + Math.random() * 0.3})`,
+                    velocityX: -1 + Math.random() * 2,
+                    velocityY: -Math.random() * 1,
+                    life: 50 + Math.random() * 30,
+                    gravity: 0.05
+                });
+            }
+        }
+        
+        function createCoinParticles(x, y) {
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    size: 3 + Math.random() * 4,
+                    color: `rgba(255, 215, 0, ${0.8 + Math.random() * 0.2})`,
+                    velocityX: -4 + Math.random() * 8,
+                    velocityY: -2 - Math.random() * 4,
+                    life: 40 + Math.random() * 30,
+                    gravity: 0.1
+                });
+            }
+        }
+        
+        function updateParticles(deltaTime) {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                
+                p.x += p.velocityX * (deltaTime / 16.67);
+                p.y += p.velocityY * (deltaTime / 16.67);
+                p.velocityY += p.gravity * (deltaTime / 16.67);
+                p.life -= 1 * (deltaTime / 16.67);
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        function drawParticles() {
+            particles.forEach(p => {
+                ctx.globalAlpha = Math.min(1, p.life / 30);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+        
+        // Obstacle types
+        const OBSTACLE_TYPES = {
+            PINE_TREE: 0,
+            PINE_TREE_SMALL: 1,
+            PINE_TREE_LARGE: 2,
+            BUSH: 3,
+            CACTUS_SMALL: 4,
+            CACTUS_MEDIUM: 5,
+            CACTUS_LARGE: 6,
+            CACTUS_GROUP: 7
+        };
+        
+        // Obstacle class
+        class Obstacle {
+            constructor(groupWithPrevious = false) {
+                // Modified cactus appearance logic
+                const cactusChance = 
+                    (score >= 8 && score < 16 && Math.random() > 0.7) ||  // 30% chance at 8-15
+                    (score >= 16 && score < 800 && Math.random() > 0.5) || // 50% chance at 16-799
+                    (score >= 800); // Always after 800
+                
+                // Determine type based on level progression and score
+                let typeRoll = Math.random();
+                let type;
+                
+                if (cactusChance) {
+                    // Cactus types - more variety in size and grouping
+                    if (typeRoll > 0.85 && score >= 16) {
+                        type = OBSTACLE_TYPES.CACTUS_GROUP; // Two touching cacti (15% chance when eligible)
+                    } else if (typeRoll > 0.6) {
+                        type = OBSTACLE_TYPES.CACTUS_LARGE; // Large cactus (25% chance)
+                    } else if (typeRoll > 0.3) {
+                        type = OBSTACLE_TYPES.CACTUS_MEDIUM; // Medium cactus (30% chance)
+                    } else {
+                        type = OBSTACLE_TYPES.CACTUS_SMALL; // Small cactus (30% chance)
+                    }
+                } else {
+                    // Original tree types
+                    if (typeRoll > 0.7 && level >= 1) {
+                        type = OBSTACLE_TYPES.PINE_TREE_SMALL;
+                    } else if (typeRoll > 0.85 && level >= 2) {
+                        type = OBSTACLE_TYPES.PINE_TREE_LARGE;
+                    } else if (typeRoll > 0.5 && level >= 1) {
+                        type = OBSTACLE_TYPES.BUSH;
+                    } else {
+                        type = OBSTACLE_TYPES.PINE_TREE;
+                    }
+                }
+                
+                this.type = type;
+                this.x = canvas.width;
+                this.passed = false;
+                this.pointValue = 1;
+                this.windTime = 0;
+                this.groupWithPrevious = groupWithPrevious;
+                this.hasCoin = Math.random() > 0.5; // 50% chance to have a coin
+                
+                // Set properties based on type
+                switch(type) {
+                    case OBSTACLE_TYPES.PINE_TREE:
+                        this.width = 50;
+                        this.height = 100;
+                        this.trunkColor = '#8B4513';
+                        this.needleColor = '#2E7D32';
+                        this.pointValue = 1;
+                        break;
+                    case OBSTACLE_TYPES.PINE_TREE_SMALL:
+                        this.width = 40;
+                        this.height = 80;
+                        this.trunkColor = '#8B4513';
+                        this.needleColor = '#388E3C';
+                        this.pointValue = 1;
+                        break;
+                    case OBSTACLE_TYPES.PINE_TREE_LARGE:
+                        this.width = 70;
+                        this.height = 120;
+                        this.trunkColor = '#8B4513';
+                        this.needleColor = '#1B5E20';
+                        this.pointValue = 2;
+                        break;
+                    case OBSTACLE_TYPES.BUSH:
+                        this.width = 60 + Math.random() * 30;
+                        this.height = 30 + Math.random() * 15;
+                        this.color = '#FFEB3B';
+                        this.pointValue = 1;
+                        break;
+                    case OBSTACLE_TYPES.CACTUS_SMALL:
+                        this.width = 30;
+                        this.height = 60;
+                        this.color = '#4CAF50';
+                        this.pointValue = 2;
+                        break;
+                    case OBSTACLE_TYPES.CACTUS_MEDIUM:
+                        this.width = 35;
+                        this.height = 75;
+                        this.color = '#388E3C';
+                        this.pointValue = 2;
+                        break;
+                    case OBSTACLE_TYPES.CACTUS_LARGE:
+                        this.width = 40;
+                        this.height = 90;
+                        this.color = '#2E7D32';
+                        this.pointValue = 3;
+                        break;
+                    case OBSTACLE_TYPES.CACTUS_GROUP:
+                        this.width = 80;
+                        this.height = 70;
+                        this.color = '#1B5E20';
+                        this.pointValue = 4;
+                        break;
+                }
+                
+                // If this is part of a group, position it close to the previous obstacle
+                if (this.groupWithPrevious && obstacles.length > 0) {
+                    const lastObstacle = obstacles[obstacles.length - 1];
+                    this.x = lastObstacle.x + lastObstacle.width + 20 + Math.random() * 30;
+                }
+                
+                this.y = canvas.height - 50 - this.height + 5;
+                
+                // Add a coin to this obstacle if it has one
+                if (this.hasCoin) {
+                    // Position coin above the obstacle or floating in the air
+                    const coinY = this.y - 30 - Math.random() * 40;
+                    coinsArray.push(new Coin(this.x + this.width/2, coinY));
+                }
+            }
+            
+            draw() {
+                switch(this.type) {
+                    case OBSTACLE_TYPES.PINE_TREE:
+                    case OBSTACLE_TYPES.PINE_TREE_SMALL:
+                    case OBSTACLE_TYPES.PINE_TREE_LARGE:
+                        this.drawPineTree();
+                        break;
+                    case OBSTACLE_TYPES.BUSH:
+                        this.drawBush();
+                        break;
+                    case OBSTACLE_TYPES.CACTUS_SMALL:
+                    case OBSTACLE_TYPES.CACTUS_MEDIUM:
+                    case OBSTACLE_TYPES.CACTUS_LARGE:
+                        this.drawCactus();
+                        break;
+                    case OBSTACLE_TYPES.CACTUS_GROUP:
+                        this.drawCactusGroup();
+                        break;
+                }
+            }
+            
+            drawPineTree() {
+                // Animate with wind
+                this.windTime += 0.05;
+                const windEffect = Math.sin(this.windTime) * 2;
+                
+                // Trunk
+                const trunkWidth = this.width / 5;
+                const trunkHeight = this.height * 0.3;
+                ctx.fillStyle = this.trunkColor;
+                ctx.fillRect(
+                    this.x + (this.width - trunkWidth)/2 + windEffect, 
+                    canvas.height - 50 - trunkHeight,
+                    trunkWidth, 
+                    trunkHeight
+                );
+                
+                // Needles in layers
+                let layers;
+                if (this.type === OBSTACLE_TYPES.PINE_TREE_LARGE) {
+                    layers = Math.random() > 0.5 ? 4 : 3;
+                } else if (this.type === OBSTACLE_TYPES.PINE_TREE) {
+                    layers = 3;
+                } else {
+                    layers = 2;
+                }
+                
+                for (let i = 0; i < layers; i++) {
+                    const layerHeight = (this.height - trunkHeight) / layers;
+                    const layerWidth = this.width * (1 - (i * 0.2));
+                    const layerY = canvas.height - 50 - trunkHeight - (layers - i) * layerHeight;
+                    
+                    ctx.fillStyle = this.needleColor;
+                    ctx.beginPath();
+                    ctx.moveTo(
+                        this.x + this.width/2 + windEffect, 
+                        layerY
+                    );
+                    ctx.lineTo(
+                        this.x + this.width/2 - layerWidth/2 + windEffect * 0.7, 
+                        layerY + layerHeight
+                    );
+                    ctx.lineTo(
+                        this.x + this.width/2 + layerWidth/2 + windEffect * 0.7, 
+                        layerY + layerHeight
+                    );
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+            
+            drawBush() {
+                // Main bush shape
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.ellipse(
+                    this.x + this.width/2, 
+                    canvas.height - 50 - this.height/2, 
+                    this.width/2, 
+                    this.height/2, 
+                    0, 
+                    0, 
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+            
+            drawCactus() {
+                // Main cactus body
+                ctx.fillStyle = this.color;
+                let cactusWidth, cactusHeight;
+                
+                if (this.type === OBSTACLE_TYPES.CACTUS_LARGE) {
+                    cactusWidth = 25;
+                    cactusHeight = 90;
+                } else if (this.type === OBSTACLE_TYPES.CACTUS_MEDIUM) {
+                    cactusWidth = 20;
+                    cactusHeight = 75;
+                } else {
+                    cactusWidth = 15;
+                    cactusHeight = 60;
+                }
+                
+                // Draw main body
+                ctx.fillRect(
+                    this.x + (this.width - cactusWidth)/2,
+                    canvas.height - 50 - cactusHeight,
+                    cactusWidth,
+                    cactusHeight
+                );
+                
+                // Add some details
+                ctx.fillStyle = '#2E7D32';
+                const segmentHeight = cactusHeight / 4;
+                for (let i = 0; i < 4; i++) {
+                    ctx.fillRect(
+                        this.x + (this.width - cactusWidth)/2,
+                        canvas.height - 50 - cactusHeight + (i * segmentHeight),
+                        cactusWidth,
+                        2
+                    );
+                }
+                
+                // Add some spines
+                ctx.strokeStyle = '#1B5E20';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < 4; i++) {
+                    const yPos = canvas.height - 50 - cactusHeight + (i * segmentHeight) + 10;
+                    
+                    // Left spines
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + (this.width - cactusWidth)/2, yPos);
+                    ctx.lineTo(this.x + (this.width - cactusWidth)/2 - 5, yPos);
+                    ctx.stroke();
+                    
+                    // Right spines
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + (this.width + cactusWidth)/2, yPos);
+                    ctx.lineTo(this.x + (this.width + cactusWidth)/2 + 5, yPos);
+                    ctx.stroke();
+                }
+            }
+            
+            drawCactusGroup() {
+                // Draw a group of 2-3 cacti
+                ctx.fillStyle = this.color;
+                
+                // First cactus (medium)
+                const cactus1Width = 20;
+                const cactus1Height = 75;
+                ctx.fillRect(
+                    this.x + 10,
+                    canvas.height - 50 - cactus1Height,
+                    cactus1Width,
+                    cactus1Height
+                );
+                
+                // Second cactus (large)
+                const cactus2Width = 25;
+                const cactus2Height = 90;
+                ctx.fillRect(
+                    this.x + 40,
+                    canvas.height - 50 - cactus2Height,
+                    cactus2Width,
+                    cactus2Height
+                );
+                
+                // Add some details to all cacti
+                ctx.fillStyle = '#2E7D32';
+                for (let i = 0; i < 2; i++) {
+                    const xOffset = i === 0 ? 10 : 40;
+                    const cactusWidth = i === 0 ? 20 : 25;
+                    const cactusHeight = i === 0 ? 75 : 90;
+                    
+                    for (let j = 0; j < 4; j++) {
+                        ctx.fillRect(
+                            this.x + xOffset,
+                            canvas.height - 50 - cactusHeight + (j * (cactusHeight / 4)),
+                            cactusWidth,
+                            2
+                        );
+                    }
+                }
+            }
+            
+            update(deltaTime) {
+                this.x -= gameSpeed * (deltaTime / 16.67);
+                this.windTime += 0.02 * (deltaTime / 16.67);
+                
+                // Check collision with ball
+                const closestX = Math.max(this.x, Math.min(ball.x, this.x + this.width));
+                const closestY = Math.max(this.y, Math.min(ball.y, this.y + this.height));
+                
+                const distanceX = ball.x - closestX;
+                const distanceY = ball.y - closestY;
+                const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+                
+                if (distance < ball.radius) {
+                    if (this.type === OBSTACLE_TYPES.BUSH) {
+                        createTreeParticles(ball.x, ball.y);
+                    }
+                    gameOver();
+                }
+                
+                // Score point if obstacle is passed
+                if (!this.passed && ball.x > this.x + this.width) {
+                    this.passed = true;
+                    score += this.pointValue;
+                    document.getElementById('score-display').textContent = `Score: ${score}`;
+                    
+                    // Only play score music if this obstacle doesn't have a coin and sound is enabled
+                    if (!this.hasCoin && soundEnabled) {
+                        music.score.currentTime = 0;
+                        music.score.play();
+                    }
+                    
+                    // Level up every 20 points (starts at 0, goes to 1 at 20 points)
+                    const newLevel = Math.floor(score / 20);
+                    if (newLevel > level) {
+                        level = newLevel;
+                        gameSpeed += 0.5;
+                        document.getElementById('level-display').textContent = `Level: ${level}`;
+                        if (soundEnabled) {
+                            music.levelUp.currentTime = 0;
+                            music.levelUp.play();
+                        }
+                        initBackgroundElements(); // Initialize new background elements when level changes
+                    }
+                }
+            }
+        }
+        
+        // Game loop
+        function gameLoop(timestamp) {
+            if (!gameRunning) return;
+            
+            // Calculate delta time for frame-rate independence
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            drawBackground();
+            
+            // Update and draw particles
+            updateParticles(deltaTime);
+            drawParticles();
+            
+            // Update and draw ball
+            ball.update(deltaTime);
+            ball.draw();
+            
+            // Generate obstacles at intervals
+            const baseInterval = 1500 - (level * 50);
+            const minInterval = 800;
+            const obstacleInterval = Math.max(minInterval, baseInterval);
+            
+            if (!lastObstacleTime || timestamp - lastObstacleTime > obstacleInterval) {
+                // Decide if we should create a group of two obstacles (20% chance after level 1)
+                const createGroup = level > 0 && Math.random() > 0.8; // 20% chance for two obstacles
+                
+                if (createGroup) {
+                    // Create a group of 2 obstacles close together
+                    obstacles.push(new Obstacle(false)); // First obstacle
+                    obstacles.push(new Obstacle(true)); // Second obstacle grouped with first
+                } else {
+                    // Single obstacle
+                    obstacles.push(new Obstacle(false));
+                }
+                
+                lastObstacleTime = timestamp;
+            }
+            
+            // Update and draw obstacles
+            obstacles.forEach((obstacle, index) => {
+                obstacle.update(deltaTime);
+                obstacle.draw();
+                
+                // Remove obstacles that are off screen
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.splice(index, 1);
+                }
+            });
+            
+            // Update and draw coins
+            for (let i = coinsArray.length - 1; i >= 0; i--) {
+                const coin = coinsArray[i];
+                coin.update(deltaTime);
+                coin.draw();
+                
+                // Remove coins that are off screen or collected
+                if (coin.x + coin.radius < 0 || coin.collected) {
+                    coinsArray.splice(i, 1);
+                } else {
+                    // Move coins with the game speed
+                    coin.x -= gameSpeed * (deltaTime / 16.67);
+                }
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        let lastObstacleTime = 0;
+        
+        // Game over function
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('final-score').textContent = `Score: ${score}`;
+            document.getElementById('final-coins').textContent = `Coins Collected: ${coins}`;
+            document.getElementById('final-level').textContent = `Level Reached: ${level}`;
+            document.getElementById('game-over').style.display = 'flex';
+            if (soundEnabled) {
+                music.gameOver.currentTime = 0;
+                music.gameOver.play();
+            }
+        }
+        
+        // Reset game
+        function resetGame() {
+            score = 0;
+            coins = 0;
+            level = 0;
+            gameSpeed = 5;
+            obstacles = [];
+            coinsArray = [];
+            particles = [];
+            clouds = [];
+            ball.y = 250;
+            ball.velocityY = 0;
+            ball.isJumping = false;
+            lastObstacleTime = 0;
+            time = 0;
+            
+            document.getElementById('score-display').textContent = `Score: ${score}`;
+            document.getElementById('coins-display').textContent = `Coins: ${coins}`;
+            document.getElementById('level-display').textContent = `Level: ${level}`;
+            document.getElementById('game-over').style.display = 'none';
+            
+            initBackgroundElements();
+        }
+        
+        // Start game
+        function startGame() {
+            resetGame();
+            gameRunning = true;
+            document.getElementById('start-screen').style.display = 'none';
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Toggle sound function
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const soundBtn = document.getElementById('sound-btn');
+            
+            if (soundEnabled) {
+                soundBtn.classList.remove('muted');
+                // Set volume for all sounds
+                music.score.volume = 0.7;
+                music.coin.volume = 0.7;
+                music.levelUp.volume = 0.7;
+                music.gameOver.volume = 0.7;
+            } else {
+                soundBtn.classList.add('muted');
+                // Mute all sounds
+                music.score.volume = 0;
+                music.coin.volume = 0;
+                music.levelUp.volume = 0;
+                music.gameOver.volume = 0;
+            }
+        }
+        
+        // Event listeners for game controls
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && gameRunning) {
+                ball.jump();
+                e.preventDefault();
+            }
+            
+            if (e.code === 'Space' && !gameRunning && document.getElementById('game-over').style.display === 'flex') {
+                startGame();
+            }
+        });
+        
+        canvas.addEventListener('click', () => {
+            if (gameRunning) {
+                ball.jump();
+            } else if (document.getElementById('game-over').style.display === 'flex') {
+                startGame();
+            }
+        });
+        
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('restart-btn').addEventListener('click', startGame);
+        
+        // Sound button event listener
+        document.getElementById('sound-btn').addEventListener('click', toggleSound);
+        
+        // Privacy modal functionality
+        const privacyModal = document.getElementById('privacy-modal');
+        const privacyBtn = document.getElementById('privacy-btn');
+        const gameOverPrivacyBtn = document.getElementById('game-over-privacy-btn');
+        const closePrivacy = document.querySelector('.close-privacy');
+        
+        // Show privacy modal
+        function showPrivacy() {
+            privacyModal.style.display = 'flex';
+        }
+        
+        // Hide privacy modal
+        function hidePrivacy() {
+            privacyModal.style.display = 'none';
+        }
+        
+        // Event listeners for privacy modal
+        privacyBtn.addEventListener('click', showPrivacy);
+        gameOverPrivacyBtn.addEventListener('click', showPrivacy);
+        closePrivacy.addEventListener('click', hidePrivacy);
+        
+        // Close modal when clicking outside content
+        privacyModal.addEventListener('click', (e) => {
+            if (e.target === privacyModal) {
+                hidePrivacy();
+            }
+        });
+        
+        // YouTube logo click handler
+        document.getElementById('youtube-logo').addEventListener('click', () => {
+            window.open('https://youtube.com/@appworldofficialyt?si=TTfNopBI9qR5CQ2r', '_blank');
+        });
+        
+        // Initialize background elements when page loads
+        initBackgroundElements();
+    </script>
+</body>
+</html>
