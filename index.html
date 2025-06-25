@@ -403,6 +403,8 @@
     </div>
 
     <script>
+        let adShownTime = 0;
+        const adCooldown = 180000; // 3 minutes in milliseconds
         // Game variables
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
@@ -1890,10 +1892,21 @@
         
         // Reset game
         function resetGame() {
-            var interstitialScript = document.createElement('script');
-            interstitialScript.type = 'text/javascript';
-            interstitialScript.src = '//pl27003640.profitableratecpm.com/e2/4b/aa/e24baa2e7f690208032a8d27a4c567ef.js';
-            document.head.appendChild(interstitialScript);
+            const currentTime = new Date().getTime();
+
+            // Check if 3 minutes have passed since the last ad
+            if (currentTime - adShownTime > adCooldown) {
+                // It's time to show an ad!
+                var interstitialScript = document.createElement('script');
+                interstitialScript.type = 'text/javascript';
+                interstitialScript.src = '//pl27003640.profitableratecpm.com/e2/4b/aa/e24baa2e7f690208032a8d27a4c567ef.js';
+                document.head.appendChild(interstitialScript);
+                
+                // Update the time when the ad was last shown
+                adShownTime = currentTime;
+            }
+
+            // --- The original game reset code ---
             score = 0;
             coins = 0;
             level = 0;
