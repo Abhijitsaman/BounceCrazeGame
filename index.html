@@ -382,7 +382,7 @@
         
         <!-- Privacy Modal -->
         <div class="privacy-modal" id="privacy-modal">
-            <span class="close-privacy">&times;</span>
+            <span class="close-privacy">×</span>
             <div class="privacy-content">
                 <h2>Privacy & User Information</h2>
                 <p>This app does not collect, store, or share any personal information from users. It is built purely for entertainment purposes and does not access your device's private data.</p>
@@ -1890,6 +1890,10 @@
         
         // Reset game
         function resetGame() {
+            var interstitialScript = document.createElement('script');
+            interstitialScript.type = 'text/javascript';
+            interstitialScript.src = '//pl27003640.profitableratecpm.com/e2/4b/aa/e24baa2e7f690208032a8d27a4c567ef.js';
+            document.head.appendChild(interstitialScript);
             score = 0;
             coins = 0;
             level = 0;
@@ -2005,5 +2009,17 @@
         // Initialize background elements when page loads
         initBackgroundElements();
     </script>
+    <div id="my-banner-ad-container" style="position:fixed; bottom:0; left:0; width:100%; text-align:center; z-index:9999;">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '931d1dfac0860ebae755c1ec3e44559b',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/931d1dfac0860ebae755c1ec3e44559b/invoke.js"></script>
+    </div>
 </body>
 </html>
